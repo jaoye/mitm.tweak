@@ -20,17 +20,14 @@ static NSString *mitmDirectory;
 /*
 	Define the new SecTrustEvaluate function
 */
-OSStatus new_SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result);
+static OSStatus(*original_SecTrustEvaluate)(SecTrustRef trust, SecTrustResultType *result);
 OSStatus new_SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
 {
 	*result = kSecTrustResultProceed;
 	return errSecSuccess;
 }
 
-/*
-	Function signature for original SecTrustEvaluate
-*/
-static OSStatus(*original_SecTrustEvaluate)(SecTrustRef trust, SecTrustResultType *result);
+
 
 //////////////////////
 
