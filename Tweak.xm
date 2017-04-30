@@ -2,8 +2,8 @@
 #import <UIKit/UIKit.h>
 #import <Security/Security.h>
 #import <fishhook.h>
-#import <dlfcn.h>
-#import <mach-o/dyld.h>
+#include "Location/WCLocation.h"
+#include "Joystick/JoystickView.h"
 
 static NSString *mitmDirectory;
 
@@ -72,6 +72,54 @@ OSStatus new_SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
 
 %end
 
+/**
+ * Hook location
+ **/
+bool locationHookReady = false;
+WCLocation *goLoc;
+
+%hook NIAIosLocationManager
+
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    CLLocation* location = [locations lastObject];
+    
+	if (!locationHookReady) {
+		goLoc = [WCLocation new];
+    
+        goLoc.coordinate = location.coordinate;
+        goLoc.altitude = location.altitude;
+        goLoc.floor = location.floor;
+
+		locationHookReady = true;
+	} else {
+		[goLoc randomize];
+		locations = @[goLoc];
+	}
+    
+    %orig;
+}
+
+%end
+
+/**
+ * UI
+ */
+
+JoystickView *joystick;
+
+%hook UnityView
+
+- (void)layoutSubviews
+{
+    %orig;
+	if (!joystick) {
+
+	}
+}
+
+%end
+
 ////
 
 %ctor {
@@ -87,17 +135,6 @@ OSStatus new_SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
 
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documents = [paths objectAtIndex:0];
-
-	// 
-
-	unsigned long slide = _dyld_get_image_vmaddr_slide(0);
-	unsigned long pSend = slide + 0x7c9914;
-	Dl_info symbolInfo;
-	if (dladdr((void *)pSend, &symbolInfo)) {
-		NSLog(@"[mitm] dladdr name == %s", symbolInfo.dli_sname);
-	} else {
-		NSLog(@"[mitm] dladdr == 0");
-	}
 
 	//
 
