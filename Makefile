@@ -6,8 +6,7 @@ DISPLAY_NAME = mitm
 BUNDLE_ID = com.niico.pokemongo
 
 pokemongo_FILES = Tweak.xm
-pokemongo_IPA = pokemongo.v0.63.1.ipa
-# pokemongo_IPA = PokeGo2.0r-22.ipa
+pokemongo_IPA = pokemongo.v0.67.1.ipa
 
 pokemongo_FRAMEWORKS=QuartzCore Security
 pokemongo_USE_FISHHOOK=1
